@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  arcade2048-db:
+    image: mcr.microsoft.com/mssql/server
+    restart: always
+    ports:
+      - '63935:1433'
+    environment:
+      - DB_USER=SA
+      - SA_PASSWORD=#localDockerPassword#
+      - DB_CONTAINER_NAME=dev_arcade2048
+      - ACCEPT_EULA=Y
+    volumes:
+      - arcade2048-data:/var/lib/sqlserver/data
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+#    port mappings: https://www.jaegertracing.io/docs/1.32/getting-started/
+    ports:
+      - "63937:5775/udp"
+      - "63936:6831/udp"
+      - "63938:6832/udp"
+      - "63939:5778"
+      - "63940:16686"
+      - "63941:14250"
+      - "63942:14268"
+      - "63943:14269"
+      - "63944:9411"
+
+        
+volumes:
+  # compose volumes marker - do not delete
+  arcade2048-data:
