@@ -24,7 +24,7 @@ public static class ServiceRegistration
         }
 
         services.AddDbContext<Arcade2048DbContext>(options =>
-            options.UseSqlServer(connectionString,
+            options.UseNpgsql(connectionString,
                 builder => builder.MigrationsAssembly(typeof(Arcade2048DbContext).Assembly.FullName))
                             .UseSnakeCaseNamingConvention());
 
