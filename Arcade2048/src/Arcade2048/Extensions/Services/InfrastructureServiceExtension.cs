@@ -33,6 +33,12 @@ public static class ServiceRegistration
         services.SetupHangfire(env);
 
         // Auth -- Do Not Delete
+
+        //JWT Auth -- Do Not Delete
+        services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
+        services.AddSingleton<ITokenService, TokenService>();
     }
 }
     

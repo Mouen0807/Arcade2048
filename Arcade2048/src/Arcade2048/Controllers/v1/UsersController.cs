@@ -16,7 +16,18 @@ using MediatR;
 [Route("api/v{v:apiVersion}/users")]
 [ApiVersion("1.0")]
 public sealed class UsersController(IMediator mediator): ControllerBase
-{    
+{
+    /// <summary>
+    /// Registers a new user and returns access and refresh tokens.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("register", Name = "RegisterUser")]
+    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterUserDto request)
+    {
+        var command = new RegisterUser.Command(request);
+        var result = await mediator.Send(command);
+        return Ok(result);
+    }
 
     /// <summary>
     /// Creates a new User record.
