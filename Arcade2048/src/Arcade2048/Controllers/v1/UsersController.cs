@@ -1,16 +1,17 @@
 namespace Arcade2048.Controllers.v1;
 
-using Arcade2048.Domain.Users.Features;
+using Arcade2048.Domain.Users;
 using Arcade2048.Domain.Users.Dtos;
-using Arcade2048.Resources;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Threading.Tasks;
-using System.Threading;
+using Arcade2048.Domain.Users.Features;
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/v{v:apiVersion}/users")]
@@ -27,6 +28,28 @@ public sealed class UsersController(IMediator mediator): ControllerBase
         var command = new RegisterUser.Command(request);
         var result = await mediator.Send(command);
         return Ok(result);
+    }
+
+    /// <summary>
+    /// logout an user.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("logout", Name = "LogoutUser")]
+    public async Task<ActionResult<AuthResponseDto>> Logout()
+    {
+        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
+            return Unauthorized();
+
+        var query = new GetUser.Query(userId);
+        var queryResponse = await mediator.Send(query);
+
+        if (queryResponse == null) return NotFound();
+
+        var command = new LogOutUser.Command(userId);
+        await mediator.Send(command);
+        return Ok();
     }
 
     /// <summary>
@@ -47,6 +70,7 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// <summary>
     /// Gets a single User by ID.
     /// </summary>
+    [Authorize]
     [HttpGet("{userId:guid}", Name = "GetUser")]
     public async Task<ActionResult<UserDto>> GetUser(Guid userId)
     {
@@ -59,6 +83,7 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// <summary>
     /// Gets a list of all Users.
     /// </summary>
+    [Authorize]
     [HttpGet(Name = "GetUsers")]
     public async Task<IActionResult> GetUsers([FromQuery] UserParametersDto userParametersDto)
     {

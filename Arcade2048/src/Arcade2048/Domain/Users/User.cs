@@ -28,6 +28,12 @@ public class User : BaseEntity
 
     public DateTime? RefreshTokenExpiry { get; private set; }
 
+    public void ClearRefreshToken()
+    {
+        RefreshToken = null;
+        RefreshTokenExpiry = null;
+    }
+
     // Add Props Marker -- Deleting this comment will cause the add props utility to be incomplete
 
 
