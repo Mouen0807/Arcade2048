@@ -34,9 +34,13 @@ public class User : BaseEntity
         RefreshTokenExpiry = null;
     }
 
+    public void SetRefreshToken(string refreshToken, DateTime expiry)
+    {
+        RefreshToken = refreshToken;
+        RefreshTokenExpiry = expiry;
+    }
+
     // Add Props Marker -- Deleting this comment will cause the add props utility to be incomplete
-
-
     public static User Create(UserForCreation userForCreation)
     {
         var newUser = new User();

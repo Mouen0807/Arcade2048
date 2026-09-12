@@ -31,6 +31,18 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     }
 
     /// <summary>
+    /// login an user and returns access and refresh tokens.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("login", Name = "LoginUser")]
+    public async Task<ActionResult<AuthResponseDto>> login([FromBody] LogInUserDto request)
+    {
+        var command = new LogInUser.Command(request);
+        var result = await mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
     /// logout an user.
     /// </summary>
     [AllowAnonymous]
