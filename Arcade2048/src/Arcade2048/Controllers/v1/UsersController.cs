@@ -8,9 +8,10 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 [ApiController]
@@ -19,7 +20,7 @@ using System.Threading.Tasks;
 public sealed class UsersController(IMediator mediator): ControllerBase
 {
     /// <summary>
-    /// Registers a new user and returns access and refresh tokens.
+    /// Register a new user and returns access and refresh tokens.
     /// </summary>
     [AllowAnonymous]
     [HttpPost("register", Name = "RegisterUser")]
@@ -31,7 +32,7 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     }
 
     /// <summary>
-    /// login an user and returns access and refresh tokens.
+    /// login an user and returns access and refresh tokens
     /// </summary>
     [AllowAnonymous]
     [HttpPost("login", Name = "LoginUser")]
@@ -46,22 +47,25 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// logout an user.
     /// </summary>
     [AllowAnonymous]
+    [Authorize]
     [HttpPost("logout", Name = "LogoutUser")]
     public async Task<ActionResult<AuthResponseDto>> Logout()
     {
-        var userIdClaim = User.FindFirstValue(JwtRegisteredClaimNames.Sub);
-
-        if (userIdClaim is null || !Guid.TryParse(userIdClaim, out var userId))
-            return Unauthorized();
-
-        var query = new GetUser.Query(userId);
-        var queryResponse = await mediator.Send(query);
-
-        if (queryResponse == null) return NotFound();
-
-        var command = new LogOutUser.Command(userId);
+        var command = new LogOutUser.Command();
         await mediator.Send(command);
         return Ok();
+    }
+
+    /// <summary>
+    /// refresh user access token.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("refresh/token", Name = "RefreshAccessToken")]
+    public async Task<ActionResult<AuthResponseDto>> RefreshAccessToken([FromBody] RefreshUserTokenDto request)
+    {
+        var command = new RefreshUserToken.Command(request);
+        var result = await mediator.Send(command);
+        return Ok(result);
     }
 
     /// <summary>

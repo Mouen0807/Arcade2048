@@ -52,6 +52,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 using var scope = app.Services.CreateScope();
