@@ -2,17 +2,17 @@ namespace Arcade2048.Extensions.Services;
 
 using Arcade2048.Middleware;
 using Arcade2048.Services;
-using Resources;
-using System.Text.Json.Serialization;
-using Serilog;
 using FluentValidation.AspNetCore;
 using Hellang.Middleware.ProblemDetails;
 using Hellang.Middleware.ProblemDetails.Mvc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Resources;
+using Resources;
+using Serilog;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 public static class WebAppServiceConfiguration

@@ -1,22 +1,72 @@
 namespace Arcade2048.Controllers.v1;
 
-using Arcade2048.Domain.Users.Features;
+using Arcade2048.Domain.Users;
 using Arcade2048.Domain.Users.Dtos;
-using Arcade2048.Resources;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Threading.Tasks;
-using System.Threading;
+using Arcade2048.Domain.Users.Features;
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/v{v:apiVersion}/users")]
 [ApiVersion("1.0")]
 public sealed class UsersController(IMediator mediator): ControllerBase
-{    
+{
+    /// <summary>
+    /// Register a new user and returns access and refresh tokens.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("register", Name = "RegisterUser")]
+    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterUserDto request)
+    {
+        var command = new RegisterUser.Command(request);
+        var result = await mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// login an user and returns access and refresh tokens
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("login", Name = "LoginUser")]
+    public async Task<ActionResult<AuthResponseDto>> login([FromBody] LogInUserDto request)
+    {
+        var command = new LogInUser.Command(request);
+        var result = await mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// logout an user.
+    /// </summary>
+    [AllowAnonymous]
+    [Authorize]
+    [HttpPost("logout", Name = "LogoutUser")]
+    public async Task<ActionResult<AuthResponseDto>> Logout()
+    {
+        var command = new LogOutUser.Command();
+        await mediator.Send(command);
+        return Ok();
+    }
+
+    /// <summary>
+    /// refresh user access token.
+    /// </summary>
+    [AllowAnonymous]
+    [HttpPost("refresh/token", Name = "RefreshAccessToken")]
+    public async Task<ActionResult<AuthResponseDto>> RefreshAccessToken([FromBody] RefreshUserTokenDto request)
+    {
+        var command = new RefreshUserToken.Command(request);
+        var result = await mediator.Send(command);
+        return Ok(result);
+    }
 
     /// <summary>
     /// Creates a new User record.
@@ -36,6 +86,7 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// <summary>
     /// Gets a single User by ID.
     /// </summary>
+    [Authorize]
     [HttpGet("{userId:guid}", Name = "GetUser")]
     public async Task<ActionResult<UserDto>> GetUser(Guid userId)
     {
@@ -48,6 +99,7 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// <summary>
     /// Gets a list of all Users.
     /// </summary>
+    [Authorize]
     [HttpGet(Name = "GetUsers")]
     public async Task<IActionResult> GetUsers([FromQuery] UserParametersDto userParametersDto)
     {

@@ -13,16 +13,19 @@ public static class UpdateUser
 {
     public sealed record Command(Guid UserId, UserForUpdateDto UpdatedUserData) : IRequest;
 
-    public sealed class Handler(Arcade2048DbContext dbContext)
+    public sealed class Handler(Arcade2048DbContext dbContext, ILogger<Handler> logger)
         : IRequestHandler<Command>
     {
         public async Task Handle(Command request, CancellationToken cancellationToken)
         {
             var userToUpdate = await dbContext.Users.GetById(request.UserId, cancellationToken: cancellationToken);
+
             var userToAdd = request.UpdatedUserData.ToUserForUpdate();
             userToUpdate.Update(userToAdd);
 
             await dbContext.SaveChangesAsync(cancellationToken);
+
+            logger.LogInformation("User {UserId} updated successfully.", request.UserId);
         }
     }
 }
