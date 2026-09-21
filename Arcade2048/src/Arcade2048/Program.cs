@@ -9,6 +9,7 @@ using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Serilog.Context;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,8 @@ Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.WithProperty("ApplicationName", builder.Environment.ApplicationName)
     .Destructure.UsingAttributes()
+    .WriteTo.Console(outputTemplate:
+        "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} (TraceId: {TraceId}){NewLine}{Exception}")
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -76,6 +79,15 @@ app.UseHttpsRedirection();
 app.UseCors("Arcade2048CorsPolicy");
 
 app.MapHealthChecks("api/health");
+
+app.Use(async (context, next) =>
+{
+    using (LogContext.PushProperty("TraceId", context.TraceIdentifier))
+    {
+        await next();
+    }
+});
+
 app.UseSerilogRequestLogging();
 app.UseRouting();
 

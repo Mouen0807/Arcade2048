@@ -14,7 +14,7 @@ public static class GetUserList
 {
     public sealed record Query(UserParametersDto QueryParameters) : IRequest<PagedList<UserDto>>;
 
-    public sealed class Handler(Arcade2048DbContext dbContext)
+    public sealed class Handler(Arcade2048DbContext dbContext, ILogger<Handler> logger)
         : IRequestHandler<Query, PagedList<UserDto>>
     {
         public async Task<PagedList<UserDto>> Handle(Query request, CancellationToken cancellationToken)
@@ -31,10 +31,16 @@ public static class GetUserList
             var appliedCollection = collection.ApplyQueryKit(queryKitData);
             var dtoCollection = appliedCollection.ToUserDtoQueryable();
 
-            return await PagedList<UserDto>.CreateAsync(dtoCollection,
+            var result = await PagedList<UserDto>.CreateAsync(dtoCollection,
                 request.QueryParameters.PageNumber,
                 request.QueryParameters.PageSize,
                 cancellationToken);
+
+            logger.LogInformation(
+                "Retrieved {Count} users (page {PageNumber}/{TotalPages}).",
+                result.Count, request.QueryParameters.PageNumber, result.TotalPages);
+
+            return result;
         }
     }
 }
