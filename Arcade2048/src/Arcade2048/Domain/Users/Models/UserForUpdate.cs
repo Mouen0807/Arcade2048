@@ -8,7 +8,6 @@ public sealed record UserForUpdate
     public string? PasswordHash { get; set; }
     public string DisplayName { get; set; }
     public DateTime CreatedAt { get; set; }
-    public string Role { get; set; }
     public bool IsActive { get; set; }
     public DateTime? BannedAt { get; set; }
     public string? RefreshToken { get; set; }

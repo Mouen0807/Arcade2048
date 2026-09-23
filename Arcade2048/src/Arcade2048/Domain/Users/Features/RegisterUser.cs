@@ -46,38 +46,47 @@ public static class RegisterUser
             var refreshToken = tokenService.GenerateRefreshToken();
             var refreshTokenExpiry = DateTime.UtcNow.AddDays(_jwt.RefreshTokenExpirationDays);
 
-            // 4. Build the domain creation model
+            // 4. Retrieve the default "User" role
+            var defaultRole = await dbContext.Roles
+                .Include(r => r.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(r => r.RoleName == "Admin", cancellationToken);
+
+            if (defaultRole is null)
+            {
+                logger.LogError("Registration failed: default role 'User' was not found in the database.");
+                throw new InvalidOperationException("Default role 'User' is missing from the database. Seed data may be missing.");
+            }
+
+            // 5. Build the domain creation model
             var userForCreation = new UserForCreation
             {
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 DisplayName = request.DisplayName,
                 CreatedAt = DateTime.UtcNow,
-                Role = "User",
                 IsActive = true,
                 BannedAt = null,
                 RefreshToken = refreshToken,
                 RefreshTokenExpiry = refreshTokenExpiry
             };
 
-            // 5. Create and persist the user
-            var user = User.Create(userForCreation);
+            // 6. Create and persist the user
+            var user = User.Create(userForCreation, defaultRole);
             await dbContext.Users.AddAsync(user, cancellationToken);
             await dbContext.SaveChangesAsync(cancellationToken);
 
-            // 6. Generate the access token (after persistence, so the Id is final)
+            // 7. Generate the access token (after persistence, so the Id is final)
             var accessToken = tokenService.GenerateAccessToken(user);
 
             logger.LogInformation("User {UserId} registered successfully.", user.Id);
 
-            // 7. Return both tokens
+            // 8. Return both tokens
             return new AuthResponseDto
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
         }
-
-
     }
 }

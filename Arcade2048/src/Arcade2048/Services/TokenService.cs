@@ -19,9 +19,14 @@ namespace Arcade2048.Services
             {
                 new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new(JwtRegisteredClaimNames.Email, user.Email),
-                new("role", user.Role),
+                new("role", user.Role.RoleName),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            foreach (var rolePermission in user.Role.RolePermissions)
+            {
+                claims.Add(new Claim("permission", rolePermission.Permission.PermissionName));
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.SecretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

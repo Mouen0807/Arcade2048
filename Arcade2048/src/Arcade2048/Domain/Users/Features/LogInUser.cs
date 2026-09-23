@@ -31,6 +31,9 @@ public static class LogInUser
 
             // 1. Retrieve the user by email
             var user = await dbContext.Users
+                .Include(u => u.Role)
+                    .ThenInclude(r => r.RolePermissions)
+                        .ThenInclude(rp => rp.Permission)
                 .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
             if (user is null)

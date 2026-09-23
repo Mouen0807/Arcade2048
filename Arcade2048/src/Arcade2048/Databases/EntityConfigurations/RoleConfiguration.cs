@@ -1,22 +1,20 @@
 namespace Arcade2048.Databases.EntityConfigurations;
 
-using Arcade2048.Domain.Users;
+using Arcade2048.Domain.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-public sealed class UserConfiguration : IEntityTypeConfiguration<User>
+public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
     /// <summary>
-    /// The database configuration for Users. 
+    /// The database configuration for Roles. 
     /// </summary>
-    public void Configure(EntityTypeBuilder<User> builder)
+    public void Configure(EntityTypeBuilder<Role> builder)
     {
         // Relationship Marker -- Deleting or modifying this comment could cause incomplete relationship scaffolding
-        builder.HasOne(u => u.Role)
-            .WithMany()
-            .OnDelete(DeleteBehavior.Restrict);
-        // Property Marker -- Deleting or modifying this comment could cause incomplete relationship scaffolding
 
+        // Property Marker -- Deleting or modifying this comment could cause incomplete relationship scaffolding
+        
         // example for a more complex value object
         // builder.OwnsOne(x => x.PhysicalAddress, opts =>
         // {
