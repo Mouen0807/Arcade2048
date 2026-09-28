@@ -50,7 +50,7 @@ public static class RegisterUser
             var defaultRole = await dbContext.Roles
                 .Include(r => r.RolePermissions)
                     .ThenInclude(rp => rp.Permission)
-                .FirstOrDefaultAsync(r => r.RoleName == "Admin", cancellationToken);
+                .FirstOrDefaultAsync(r => r.RoleName == "User", cancellationToken);
 
             if (defaultRole is null)
             {

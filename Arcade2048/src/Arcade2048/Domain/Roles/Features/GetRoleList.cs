@@ -14,7 +14,7 @@ public static class GetRoleList
 {
     public sealed record Query(RoleParametersDto QueryParameters) : IRequest<PagedList<RoleDto>>;
 
-    public sealed class Handler(Arcade2048DbContext dbContext)
+    public sealed class Handler(Arcade2048DbContext dbContext, ILogger<Handler> logger)
         : IRequestHandler<Query, PagedList<RoleDto>>
     {
         public async Task<PagedList<RoleDto>> Handle(Query request, CancellationToken cancellationToken)
@@ -31,10 +31,16 @@ public static class GetRoleList
             var appliedCollection = collection.ApplyQueryKit(queryKitData);
             var dtoCollection = appliedCollection.ToRoleDtoQueryable();
 
-            return await PagedList<RoleDto>.CreateAsync(dtoCollection,
+            var result = await PagedList<RoleDto>.CreateAsync(dtoCollection,
                 request.QueryParameters.PageNumber,
                 request.QueryParameters.PageSize,
                 cancellationToken);
+
+            logger.LogInformation(
+                "Retrieved {Count} roles (page {PageNumber}/{TotalPages}).",
+                result.Count, request.QueryParameters.PageNumber, result.TotalPages);
+
+            return result;
         }
     }
 }

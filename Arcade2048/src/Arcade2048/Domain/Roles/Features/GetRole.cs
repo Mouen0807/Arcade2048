@@ -9,17 +9,31 @@ using Microsoft.EntityFrameworkCore;
 
 public static class GetRole
 {
-    public sealed record Query(Guid RoleId) : IRequest<RoleDto>;
+    public sealed record Query(Guid RoleId) : IRequest<RoleWithPermissionsDto>;
 
-    public sealed class Handler(Arcade2048DbContext dbContext)
-        : IRequestHandler<Query, RoleDto>
+    public sealed class Handler(Arcade2048DbContext dbContext, ILogger<Handler> logger)
+        : IRequestHandler<Query, RoleWithPermissionsDto>
     {
-        public async Task<RoleDto> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<RoleWithPermissionsDto> Handle(Query request, CancellationToken cancellationToken)
         {
             var result = await dbContext.Roles
                 .AsNoTracking()
-                .GetById(request.RoleId, cancellationToken);
-            return result.ToRoleDto();
+                .Include(r => r.RolePermissions)
+                    .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(r => r.Id == request.RoleId, cancellationToken);
+
+            if (result is null)
+            {
+                logger.LogWarning("GetRole failed: role {RoleId} not found.", request.RoleId);
+                throw new ValidationException($"Role '{request.RoleId}' was not found.");
+            }
+
+            var dto = result.ToRoleWithPermissionsDto();
+            dto.Permissions = result.RolePermissions
+                .Select(rp => rp.Permission.PermissionName)
+                .ToList();
+
+            return dto;
         }
     }
 }

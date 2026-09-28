@@ -1,26 +1,29 @@
 namespace Arcade2048.Controllers.v1;
 
-using Arcade2048.Domain.Roles.Features;
+using Arcade2048.Authorization;
 using Arcade2048.Domain.Roles.Dtos;
+using Arcade2048.Domain.Roles.Features;
 using Arcade2048.Resources;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Threading.Tasks;
-using System.Threading;
 using Asp.Versioning;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/v{v:apiVersion}/roles")]
 [ApiVersion("1.0")]
 public sealed class RolesController(IMediator mediator): ControllerBase
-{    
+{
 
     /// <summary>
     /// Creates a new Role record.
-    /// </summary>
+    /// </summary
+    [Authorize]
+    [RequirePermission("role.create")]
     [HttpPost(Name = "AddRole")]
     public async Task<ActionResult<RoleDto>> AddRole([FromBody]RoleForCreationDto roleForCreation)
     {
@@ -36,8 +39,10 @@ public sealed class RolesController(IMediator mediator): ControllerBase
     /// <summary>
     /// Gets a single Role by ID.
     /// </summary>
+    [Authorize]
+    [RequirePermission("role.read.one")]
     [HttpGet("{roleId:guid}", Name = "GetRole")]
-    public async Task<ActionResult<RoleDto>> GetRole(Guid roleId)
+    public async Task<ActionResult<RoleWithPermissionsDto>> GetRole(Guid roleId)
     {
         var query = new GetRole.Query(roleId);
         var queryResponse = await mediator.Send(query);
@@ -48,6 +53,8 @@ public sealed class RolesController(IMediator mediator): ControllerBase
     /// <summary>
     /// Gets a list of all Roles.
     /// </summary>
+    [Authorize]
+    [RequirePermission("role.read")]
     [HttpGet(Name = "GetRoles")]
     public async Task<IActionResult> GetRoles([FromQuery] RoleParametersDto roleParametersDto)
     {
@@ -77,6 +84,8 @@ public sealed class RolesController(IMediator mediator): ControllerBase
     /// <summary>
     /// Updates an entire existing Role.
     /// </summary>
+    [Authorize]
+    [RequirePermission("role.update")]
     [HttpPut("{roleId:guid}", Name = "UpdateRole")]
     public async Task<IActionResult> UpdateRole(Guid roleId, RoleForUpdateDto role)
     {
@@ -85,10 +94,25 @@ public sealed class RolesController(IMediator mediator): ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Link an entire existing Role to list of  existing permissions
+    /// </summary>
+    [Authorize]
+    [RequirePermission("role.link.permissions")]
+    [HttpPost("{roleId:guid}", Name = "linkPermissions")]
+    public async Task<IActionResult> linkPermissions(Guid roleId, RoleForLinkPermissionDto roleForLinkPermissionDto)
+    {
+        var command = new LinkPermissions.Command(roleId, roleForLinkPermissionDto);
+        await mediator.Send(command);
+        return NoContent();
+    }
+
 
     /// <summary>
     /// Deletes an existing Role record.
     /// </summary>
+    [Authorize]
+    [RequirePermission("role.delete")]
     [HttpDelete("{roleId:guid}", Name = "DeleteRole")]
     public async Task<ActionResult> DeleteRole(Guid roleId)
     {

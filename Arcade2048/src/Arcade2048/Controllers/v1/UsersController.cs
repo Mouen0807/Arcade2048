@@ -111,6 +111,8 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// <summary>
     /// Updates an entire existing User.
     /// </summary>
+    [Authorize]
+    [RequirePermission("users.update")]
     [HttpPut("{userId:guid}", Name = "UpdateUser")]
     public async Task<IActionResult> UpdateUser(Guid userId, UserForUpdateDto user)
     {
