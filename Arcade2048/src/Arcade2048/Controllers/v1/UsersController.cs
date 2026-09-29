@@ -1,17 +1,13 @@
 namespace Arcade2048.Controllers.v1;
 
-using Arcade2048.Domain.Users;
+using Arcade2048.Authorization;
 using Arcade2048.Domain.Users.Dtos;
 using Arcade2048.Domain.Users.Features;
 using Asp.Versioning;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 
 [ApiController]
@@ -46,7 +42,6 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// <summary>
     /// logout an user.
     /// </summary>
-    [AllowAnonymous]
     [Authorize]
     [HttpPost("logout", Name = "LogoutUser")]
     public async Task<ActionResult<AuthResponseDto>> Logout()
@@ -69,24 +64,10 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     }
 
     /// <summary>
-    /// Creates a new User record.
-    /// </summary>
-    [HttpPost(Name = "AddUser")]
-    public async Task<ActionResult<UserDto>> AddUser([FromBody]UserForCreationDto userForCreation)
-    {
-        var command = new AddUser.Command(userForCreation);
-        var commandResponse = await mediator.Send(command);
-
-        return CreatedAtRoute("GetUser",
-            new { userId = commandResponse.Id },
-            commandResponse);
-    }
-
-
-    /// <summary>
     /// Gets a single User by ID.
     /// </summary>
     [Authorize]
+    [RequirePermission("users.read.one")]
     [HttpGet("{userId:guid}", Name = "GetUser")]
     public async Task<ActionResult<UserDto>> GetUser(Guid userId)
     {
@@ -100,6 +81,7 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// Gets a list of all Users.
     /// </summary>
     [Authorize]
+    [RequirePermission("users.read")]
     [HttpGet(Name = "GetUsers")]
     public async Task<IActionResult> GetUsers([FromQuery] UserParametersDto userParametersDto)
     {
@@ -129,22 +111,12 @@ public sealed class UsersController(IMediator mediator): ControllerBase
     /// <summary>
     /// Updates an entire existing User.
     /// </summary>
+    [Authorize]
+    [RequirePermission("users.update")]
     [HttpPut("{userId:guid}", Name = "UpdateUser")]
     public async Task<IActionResult> UpdateUser(Guid userId, UserForUpdateDto user)
     {
         var command = new UpdateUser.Command(userId, user);
-        await mediator.Send(command);
-        return NoContent();
-    }
-
-
-    /// <summary>
-    /// Deletes an existing User record.
-    /// </summary>
-    [HttpDelete("{userId:guid}", Name = "DeleteUser")]
-    public async Task<ActionResult> DeleteUser(Guid userId)
-    {
-        var command = new DeleteUser.Command(userId);
         await mediator.Send(command);
         return NoContent();
     }

@@ -12,9 +12,11 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
     public void Configure(EntityTypeBuilder<User> builder)
     {
         // Relationship Marker -- Deleting or modifying this comment could cause incomplete relationship scaffolding
-
+        builder.HasOne(u => u.Role)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Restrict);
         // Property Marker -- Deleting or modifying this comment could cause incomplete relationship scaffolding
-        
+
         // example for a more complex value object
         // builder.OwnsOne(x => x.PhysicalAddress, opts =>
         // {

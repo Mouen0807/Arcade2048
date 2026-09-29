@@ -39,6 +39,9 @@ public static class RefreshUserToken
 
             // 2. Retrieve the user
             var user = await dbContext.Users
+                .Include(u => u.Role)
+                    .ThenInclude(r => r.RolePermissions)
+                        .ThenInclude(rp => rp.Permission)
                 .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
 
             if (user is null)

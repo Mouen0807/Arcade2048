@@ -10,6 +10,9 @@ using Arcade2048.Domain.Users;
 using Arcade2048.Domain.ExternalLogins;
 using Arcade2048.Domain.Scores;
 using Arcade2048.Domain.LeaderboardEntries;
+using Arcade2048.Domain.Roles;
+using Arcade2048.Domain.Permissions;
+using Arcade2048.Domain.RolePermissions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq.Expressions;
@@ -24,6 +27,9 @@ public sealed class Arcade2048DbContext(DbContextOptions<Arcade2048DbContext> op
     : DbContext(options)
 {
     #region DbSet Region - Do Not Delete
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ExternalLogin> ExternalLogins { get; set; }
     public DbSet<Score> Scores { get; set; }
@@ -40,6 +46,9 @@ public sealed class Arcade2048DbContext(DbContextOptions<Arcade2048DbContext> op
         */
 
         #region Entity Database Config Region - Only delete if you don't want to automatically add configurations
+        modelBuilder.ApplyConfiguration(new RoleConfiguration());
+        modelBuilder.ApplyConfiguration(new PermissionConfiguration());
+        modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new ExternalLoginConfiguration());
         modelBuilder.ApplyConfiguration(new ScoreConfiguration());
