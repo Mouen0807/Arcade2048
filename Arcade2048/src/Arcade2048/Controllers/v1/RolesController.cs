@@ -21,7 +21,7 @@ public sealed class RolesController(IMediator mediator): ControllerBase
 
     /// <summary>
     /// Creates a new Role record.
-    /// </summary
+    /// </summary>
     [Authorize]
     [RequirePermission("role.create")]
     [HttpPost(Name = "AddRole")]
