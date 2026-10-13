@@ -8,7 +8,6 @@ using Hellang.Middleware.ProblemDetails.Mvc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Resources;
-using Resources;
 using Serilog;
 using System.Reflection;
 using System.Text.Json;

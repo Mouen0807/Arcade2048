@@ -75,59 +75,6 @@ namespace Arcade2048.Migrations
                     b.ToTable("external_logins", (string)null);
                 });
 
-            modelBuilder.Entity("Arcade2048.Domain.LeaderboardEntries.LeaderboardEntry", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<int>("BestScore")
-                        .HasColumnType("integer")
-                        .HasColumnName("best_score");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
-
-                    b.Property<string>("DisplayName")
-                        .HasColumnType("text")
-                        .HasColumnName("display_name");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("last_modified_by");
-
-                    b.Property<DateTimeOffset?>("LastModifiedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_modified_on");
-
-                    b.Property<int>("Rank")
-                        .HasColumnType("integer")
-                        .HasColumnName("rank");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_leaderboard_entries");
-
-                    b.ToTable("leaderboard_entries", (string)null);
-                });
-
             modelBuilder.Entity("Arcade2048.Domain.Permissions.Permission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -253,55 +200,6 @@ namespace Arcade2048.Migrations
                     b.ToTable("roles", (string)null);
                 });
 
-            modelBuilder.Entity("Arcade2048.Domain.Scores.Score", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("AchievedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("achieved_at");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTimeOffset>("CreatedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_on");
-
-                    b.Property<bool>("IsBestScore")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_best_score");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("text")
-                        .HasColumnName("last_modified_by");
-
-                    b.Property<DateTimeOffset?>("LastModifiedOn")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_modified_on");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.Property<int>("Value")
-                        .HasColumnType("integer")
-                        .HasColumnName("value");
-
-                    b.HasKey("Id")
-                        .HasName("pk_scores");
-
-                    b.ToTable("scores", (string)null);
-                });
-
             modelBuilder.Entity("Arcade2048.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -312,6 +210,14 @@ namespace Arcade2048.Migrations
                     b.Property<DateTime?>("BannedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("banned_at");
+
+                    b.Property<int>("BestScore")
+                        .HasColumnType("integer")
+                        .HasColumnName("best_score");
+
+                    b.Property<DateTime?>("BestScoreAchievedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("best_score_achieved_at");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -370,6 +276,10 @@ namespace Arcade2048.Migrations
 
                     b.HasIndex("RoleId")
                         .HasDatabaseName("ix_users_role_id");
+
+                    b.HasIndex("BestScore", "BestScoreAchievedAt")
+                        .IsDescending(true, false)
+                        .HasDatabaseName("ix_users_best_score_best_score_achieved_at");
 
                     b.ToTable("users", (string)null);
                 });

@@ -10,23 +10,28 @@ using Arcade2048.Domain.Roles;
 
 public class User : BaseEntity
 {
+    public Role Role { get; private set; }
+
     public string Email { get; private set; }
 
     public string? PasswordHash { get; private set; }
 
     public string DisplayName { get; private set; }
 
-    public DateTime CreatedAt { get; private set; }
+    public int BestScore { get; private set; }                
+
+    public DateTime? BestScoreAchievedAt { get; private set; }
 
     public bool IsActive { get; private set; } = true;
-
-    public DateTime? BannedAt { get; private set; }
 
     public string? RefreshToken { get; private set; }
 
     public DateTime? RefreshTokenExpiry { get; private set; }
 
-    public Role Role { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+
+    public DateTime? BannedAt { get; private set; }
+
 
     public void ClearRefreshToken()
     {

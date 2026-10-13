@@ -3,7 +3,6 @@ namespace Arcade2048.Extensions.Application;
 using Resources;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
-using Resources;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 public static class SwaggerAppExtension
