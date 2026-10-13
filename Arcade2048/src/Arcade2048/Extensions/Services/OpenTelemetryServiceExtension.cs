@@ -45,20 +45,6 @@ public static class OpenTelemetryServiceExtension
                     .AddSqlClientInstrumentation(opt => opt.SetDbStatementForText = true)
                     .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
-                    .AddEntityFrameworkCoreInstrumentation()
-                    .AddJaegerExporter(o =>
-                    {
-                        o.AgentHost = configuration.GetJaegerHostValue();
-                        o.AgentPort = 63936;
-                        o.MaxPayloadSizeInBytes = 4096;
-                        o.ExportProcessorType = ExportProcessorType.Batch;
-                        o.BatchExportProcessorOptions = new BatchExportProcessorOptions<System.Diagnostics.Activity>
-                        {
-                            MaxQueueSize = 2048,
-                            ScheduledDelayMilliseconds = 5000,
-                            ExporterTimeoutMilliseconds = 30000,
-                            MaxExportBatchSize = 512,
-                        };
-                    }));
+                    .AddEntityFrameworkCoreInstrumentation());
     }
 }

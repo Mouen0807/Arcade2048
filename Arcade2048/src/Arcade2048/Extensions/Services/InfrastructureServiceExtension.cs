@@ -4,7 +4,6 @@ using Arcade2048.Databases;
 using Arcade2048.Resources;
 using Arcade2048.Services;
 using Arcade2048.Resources.HangfireUtilities;
-using Resources;
 using Hangfire;
 using Hangfire.MemoryStorage;
 using Microsoft.EntityFrameworkCore;

@@ -15,6 +15,9 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasOne(u => u.Role)
             .WithMany()
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(u => new { u.BestScore, u.BestScoreAchievedAt })
+               .IsDescending(true, false);
         // Property Marker -- Deleting or modifying this comment could cause incomplete relationship scaffolding
 
         // example for a more complex value object

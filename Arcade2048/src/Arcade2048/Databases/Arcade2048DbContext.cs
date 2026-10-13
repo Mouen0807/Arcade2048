@@ -8,8 +8,6 @@ using Resources;
 using MediatR;
 using Arcade2048.Domain.Users;
 using Arcade2048.Domain.ExternalLogins;
-using Arcade2048.Domain.Scores;
-using Arcade2048.Domain.LeaderboardEntries;
 using Arcade2048.Domain.Roles;
 using Arcade2048.Domain.Permissions;
 using Arcade2048.Domain.RolePermissions;
@@ -32,8 +30,6 @@ public sealed class Arcade2048DbContext(DbContextOptions<Arcade2048DbContext> op
     public DbSet<RolePermission> RolePermissions { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ExternalLogin> ExternalLogins { get; set; }
-    public DbSet<Score> Scores { get; set; }
-    public DbSet<LeaderboardEntry> LeaderboardEntries { get; set; }
     #endregion DbSet Region - Do Not Delete
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -51,8 +47,6 @@ public sealed class Arcade2048DbContext(DbContextOptions<Arcade2048DbContext> op
         modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new ExternalLoginConfiguration());
-        modelBuilder.ApplyConfiguration(new ScoreConfiguration());
-        modelBuilder.ApplyConfiguration(new LeaderboardEntryConfiguration());
         #endregion Entity Database Config Region - Only delete if you don't want to automatically add configurations
     }
 

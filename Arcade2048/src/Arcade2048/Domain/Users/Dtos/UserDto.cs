@@ -8,6 +8,7 @@ public sealed record UserDto
     public string Email { get; set; }
     public string? PasswordHash { get; set; }
     public string DisplayName { get; set; }
+    public int BestScore { get; set; }
     public DateTime CreatedAt { get; set; }
     public string Role { get; set; }
     public bool IsActive { get; set; }

@@ -121,5 +121,41 @@ public sealed class UsersController(IMediator mediator): ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Submits a score for the authenticated user. Updates the personal best if it is higher.
+    /// </summary>
+    [Authorize]
+    [HttpPost("me/score", Name = "SubmitScore")]
+    public async Task<ActionResult<SubmitScoreResultDto>> SubmitScore([FromBody] SubmitScoreDto request)
+    {
+        var command = new SubmitScore.Command(request);
+        var result = await mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Gets the leaderboard: players ranked by best score.
+    /// </summary>
+    [Authorize]
+    [HttpGet("leaderboard", Name = "GetLeaderboard")]
+    public async Task<ActionResult<IEnumerable<LeaderboardRowDto>>> GetLeaderboard([FromQuery] LeaderboardParametersDto parameters)
+    {
+        var query = new GetLeaderboard.Query(parameters);
+        var queryResponse = await mediator.Send(query);
+
+        var paginationMetadata = new
+        {
+            totalCount = queryResponse.TotalCount,
+            pageSize = queryResponse.PageSize,
+            pageNumber = queryResponse.PageNumber,
+            totalPages = queryResponse.TotalPages,
+            hasPrevious = queryResponse.HasPrevious,
+            hasNext = queryResponse.HasNext
+        };
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(paginationMetadata));
+
+        return Ok(queryResponse);
+    }
+
     // endpoint marker - do not delete this comment
 }
